@@ -16,27 +16,55 @@ export class FavoritesService {
   ) {}
 
   findAll() {
+    const artistsEnt = this.favs.artists
+      .map((id) => {
+        try {
+          return this.artistService.findOne(id);
+        } catch {
+          return;
+        }
+      })
+      .filter((v) => v);
+    const albumsEnt = this.favs.albums
+      .map((id) => {
+        try {
+          return this.albumService.findOne(id);
+        } catch {
+          return;
+        }
+      })
+      .filter((v) => v);
+    const tracksEnt = this.favs.tracks
+      .map((id) => {
+        try {
+          return this.trackService.findOne(id);
+        } catch {
+          return;
+        }
+      })
+      .filter((v) => v);
+
     const favoritesWithEntities: FavoritesResponse = {
-      artists: this.favs.artists.map((id) => this.artistService.findOne(id)),
-      albums: this.favs.albums.map((id) => this.albumService.findOne(id)),
-      tracks: this.favs.tracks.map((id) => this.trackService.findOne(id)),
+      artists: artistsEnt,
+      albums: albumsEnt,
+      tracks: tracksEnt,
     };
 
     return favoritesWithEntities;
   }
 
   addItem(id: string, item: 'album' | 'track' | 'artist') {
-    const { service, itemList } = this.extractItemInstance(item);
+    const { service } = this.extractItemInstance(item);
 
     service.findOne(id);
-    itemList.push(id);
+    this.favs[`${item}s`].push(id);
   }
 
   removeItem(id: string, item: 'album' | 'track' | 'artist') {
     let { itemList } = this.extractItemInstance(item);
     const itemId = itemList.find((itemId) => itemId === id);
     if (!itemId) throw new NotFoundException(`The ${item} is not favorited`);
-    itemList = itemList.filter((trackId) => trackId !== id);
+    this.favs[`${item}s`] = itemList.filter((itemId) => itemId !== id);
   }
 
   private extractItemInstance(item: 'album' | 'track' | 'artist') {
