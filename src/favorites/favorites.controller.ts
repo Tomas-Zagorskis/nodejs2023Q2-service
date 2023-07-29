@@ -1,34 +1,88 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+import { StatusCodes } from 'http-status-codes';
 import { FavoritesService } from './favorites.service';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
-import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 
-@Controller('favorites')
+@Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
-
-  @Post()
-  create(@Body() createFavoriteDto: CreateFavoriteDto) {
-    return this.favoritesService.create(createFavoriteDto);
-  }
 
   @Get()
   findAll() {
     return this.favoritesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.favoritesService.findOne(+id);
+  @Post('track/:id')
+  addTrack(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      this.favoritesService.addItem(id, 'track');
+      return {
+        statusCode: StatusCodes.CREATED,
+        message: 'Track successfully added',
+        error: null,
+      };
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        "Track with this id doesn't exist",
+      );
+    }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFavoriteDto: UpdateFavoriteDto) {
-    return this.favoritesService.update(+id, updateFavoriteDto);
+  @Delete('track/:id')
+  @HttpCode(204)
+  removeTrack(@Param('id', ParseUUIDPipe) id: string) {
+    this.favoritesService.removeItem(id, 'track');
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.favoritesService.remove(+id);
+  @Post('album/:id')
+  addAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      this.favoritesService.addItem(id, 'album');
+      return {
+        statusCode: StatusCodes.CREATED,
+        message: 'Album successfully added',
+        error: null,
+      };
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        "Album with this id doesn't exist",
+      );
+    }
+  }
+
+  @Delete('album/:id')
+  @HttpCode(204)
+  removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    this.favoritesService.removeItem(id, 'album');
+  }
+
+  @Post('artist/:id')
+  addArtist(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      this.favoritesService.addItem(id, 'artist');
+      return {
+        statusCode: StatusCodes.CREATED,
+        message: 'Artist successfully added',
+        error: null,
+      };
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        "Artist with this id doesn't exist",
+      );
+    }
+  }
+
+  @Delete('artist/:id')
+  @HttpCode(204)
+  removeArtist(@Param('id', ParseUUIDPipe) id: string) {
+    this.favoritesService.removeItem(id, 'artist');
   }
 }
