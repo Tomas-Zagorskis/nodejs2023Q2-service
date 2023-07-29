@@ -1,6 +1,6 @@
 import { genSalt, hash, compare } from 'bcrypt';
 
-const saltRounds = 10;
+const saltRounds = +process.env.CRYPT_SALT || 10;
 
 const createHashPass = async (password: string) => {
   const salt = await genSalt(saltRounds);
