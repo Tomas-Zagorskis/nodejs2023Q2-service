@@ -11,6 +11,8 @@ export class TrackService {
   create(createTrackDto: CreateTrackDto) {
     const newTrack: Track = {
       id: uuid(),
+      artistId: null,
+      albumId: null,
       ...createTrackDto,
     };
 

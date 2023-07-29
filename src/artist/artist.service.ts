@@ -25,7 +25,7 @@ export class ArtistService {
 
   findOne(id: string) {
     const artist = this.artists.get(id);
-    if (!artist) throw new NotFoundException('Track not found');
+    if (!artist) throw new NotFoundException('Artist not found');
     return artist;
   }
 

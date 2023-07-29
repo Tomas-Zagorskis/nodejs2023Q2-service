@@ -29,7 +29,7 @@ export class FavoritesController {
         message: 'Track successfully added',
         error: null,
       };
-    } catch (error) {
+    } catch {
       throw new UnprocessableEntityException(
         "Track with this id doesn't exist",
       );
@@ -51,7 +51,7 @@ export class FavoritesController {
         message: 'Album successfully added',
         error: null,
       };
-    } catch (error) {
+    } catch {
       throw new UnprocessableEntityException(
         "Album with this id doesn't exist",
       );
@@ -73,7 +73,7 @@ export class FavoritesController {
         message: 'Artist successfully added',
         error: null,
       };
-    } catch (error) {
+    } catch {
       throw new UnprocessableEntityException(
         "Artist with this id doesn't exist",
       );
