@@ -6,8 +6,8 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
-  Patch,
   Post,
+  Put,
   ValidationPipe,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
@@ -33,7 +33,7 @@ export class ArtistController {
     return this.artistService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateArtistDto: UpdateArtistDto,

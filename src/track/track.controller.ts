@@ -6,8 +6,8 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
-  Patch,
   Post,
+  Put,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
@@ -33,7 +33,7 @@ export class TrackController {
     return this.trackService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateTrackDto: UpdateTrackDto,

@@ -6,8 +6,8 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
-  Patch,
   Post,
+  Put,
   ValidationPipe,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
@@ -33,7 +33,7 @@ export class AlbumController {
     return this.albumService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateAlbumDto: UpdateAlbumDto,
