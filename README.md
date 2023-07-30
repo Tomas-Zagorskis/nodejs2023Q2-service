@@ -65,8 +65,64 @@ npm run lint
 npm run format
 ```
 
-### Debugging in VSCode
+### Server API
 
-Press <kbd>F5</kbd> to debug.
+* `Users` (`/user` route)
+    * `GET /user` - get all users
+    * `GET /user/:id` - get single user by id (uuid)
+    * `POST /user` - create user (following request body should be used)
+      ```
+        login: string;
+        password: string;
+      ```
+    * `PUT /user/:id` - update user's password with attributes:
+      ```
+        oldPassword: string; 
+        newPassword: string; 
+      ```
+    * `DELETE /user/:id` - delete user by id (uuid)
 
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+  * `Tracks` (`/track` route)
+    * `GET /track` - get all tracks
+    * `GET /track/:id` - get single track by id (uuid)
+    * `POST /track` - create new track with attributes:
+      ```
+        name: string;
+        artistId: string | null; 
+        albumId: string | null; 
+        duration: number; 
+      ```
+    * `PUT /track/:id` - update track info
+    * `DELETE /track/:id` - delete track by id (uuid)
+
+  * `Artists` (`/artist` route)
+    * `GET /artist` - get all artists
+    * `GET /artist/:id` - get single artist by id (uuid)
+    * `POST /artist` - create new artist with attributes:
+      ```
+        name: string;
+        grammy: boolean;
+      ```
+    * `PUT /artist/:id` - update artist info
+    * `DELETE /artist/:id` - delete artist by id (uuid)
+
+  * `Albums` (`/album` route)
+    * `GET /album` - get all albums
+    * `GET /album/:id` - get single album by id (uuid)
+    * `POST /album` - create new album with attributes:
+       ```
+        name: string;
+        year: number;
+        artistId: string | null; 
+      ```
+    * `PUT /album/:id` - update album info
+    * `DELETE /album/:id` - delete album by id (uuid)
+
+  * `Favorites`
+    * `GET /favs` - get all favorites
+    * `POST /favs/track/:id` - add track to the favorites
+    * `DELETE /favs/track/:id` - delete track from favorites
+    * `POST /favs/album/:id` - add album to the favorites
+    * `DELETE /favs/album/:id` - delete album from favorites
+    * `POST /favs/artist/:id` - add artist to the favorites
+    * `DELETE /favs/artist/:id` - delete artist from favorites
