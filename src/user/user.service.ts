@@ -15,8 +15,6 @@ export class UserService {
   private users = new Map<string, User>();
 
   async create(createUserDto: CreateUserDto) {
-    this.checkLogin(createUserDto.login);
-
     const hashPass = await createHashPass(createUserDto.password);
 
     const newUser: User = {
@@ -81,11 +79,5 @@ export class UserService {
     const user = this.users.get(id);
     if (!user) throw new NotFoundException('User not found');
     return user;
-  }
-
-  private checkLogin(login: string) {
-    const users = this.findAll();
-    const hasLogin = users.find((user) => user.login === login);
-    if (hasLogin) throw new BadRequestException('This login is already in use');
   }
 }
