@@ -67,6 +67,8 @@ npm run format
 
 ### Server API
 
+* `OpenApi` (`/api` route) - endpoints documentation 
+
 * `Users` (`/user` route)
     * `GET /user` - get all users
     * `GET /user/:id` - get single user by id (uuid)
