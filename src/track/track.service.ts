@@ -42,4 +42,13 @@ export class TrackService {
     this.findOne(id);
     this.tracks.delete(id);
   }
+
+  removeIdReference(id: string, key: 'artistId' | 'albumId') {
+    const tracks = this.findAll();
+    tracks.forEach((track) => {
+      if (track[key] === id) {
+        this.tracks.set(track.id, { ...track, [key]: null });
+      }
+    });
+  }
 }

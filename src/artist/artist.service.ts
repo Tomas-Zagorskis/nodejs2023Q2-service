@@ -3,10 +3,17 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
 import { v4 as uuid } from 'uuid';
+import { TrackService } from 'src/track/track.service';
+import { AlbumService } from 'src/album/album.service';
 
 @Injectable()
 export class ArtistService {
   private artists = new Map<string, Artist>();
+
+  constructor(
+    private readonly trackService: TrackService,
+    private readonly albumService: AlbumService,
+  ) {}
 
   create(createArtistDto: CreateArtistDto) {
     const newArtist: Artist = {
@@ -41,6 +48,8 @@ export class ArtistService {
 
   remove(id: string) {
     this.findOne(id);
+    this.trackService.removeIdReference(id, 'artistId');
+    this.albumService.removeArtistId(id);
     this.artists.delete(id);
   }
 }

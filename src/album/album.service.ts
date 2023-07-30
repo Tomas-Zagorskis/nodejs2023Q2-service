@@ -1,12 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { TrackService } from 'src/track/track.service';
+import { v4 as uuid } from 'uuid';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';
-import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class AlbumService {
   private albums = new Map<string, Album>();
+
+  constructor(private readonly trackService: TrackService) {}
 
   create(createAlbumDto: CreateAlbumDto) {
     const newAlbum: Album = {
@@ -42,6 +45,16 @@ export class AlbumService {
 
   remove(id: string) {
     this.findOne(id);
+    this.trackService.removeIdReference(id, 'albumId');
     this.albums.delete(id);
+  }
+
+  removeArtistId(id: string) {
+    const albums = this.findAll();
+    albums.forEach((album) => {
+      if (album.artistId === id) {
+        this.albums.set(album.id, { ...album, artistId: null });
+      }
+    });
   }
 }
