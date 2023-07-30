@@ -1,14 +1,13 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
 import { comparePass, createHashPass } from './helpers/password';
-import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UserService {

@@ -61,7 +61,7 @@ export class FavoritesService {
   }
 
   removeItem(id: string, item: 'album' | 'track' | 'artist') {
-    let { itemList } = this.extractItemInstance(item);
+    const { itemList } = this.extractItemInstance(item);
     const itemId = itemList.find((itemId) => itemId === id);
     if (!itemId) throw new NotFoundException(`The ${item} is not favorited`);
     this.favs[`${item}s`] = itemList.filter((itemId) => itemId !== id);
