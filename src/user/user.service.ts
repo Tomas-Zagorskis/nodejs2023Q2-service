@@ -24,8 +24,8 @@ export class UserService {
       login: createUserDto.login,
       password: hashPass,
       version: 1,
-      createAt: new Date().getTime(),
-      updateAt: new Date().getTime(),
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
     };
 
     this.users.set(newUser.id, newUser);
@@ -65,7 +65,7 @@ export class UserService {
     const updUser: Omit<User, 'password'> = {
       ...restUser,
       version: ++user.version,
-      updateAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
     };
 
     this.users.set(id, { ...updUser, password: newPassword });
