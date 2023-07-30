@@ -9,12 +9,20 @@
 
 ```
 git clone {repository URL}
+
+cd {directory name}
 ```
 
 ## Installing NPM modules
 
 ```
-npm install
+npm install --legacy-peer-deps
+```
+
+## Create Env
+
+```
+cp .env.example .env
 ```
 
 ## Running application
