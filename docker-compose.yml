@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  home-library:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: development
+    container_name: home-library-c
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    command: npm run start:dev
+    ports:
+      - 4000:4000
