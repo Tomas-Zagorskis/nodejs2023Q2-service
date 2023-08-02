@@ -14,3 +14,17 @@ services:
     command: npm run start:dev
     ports:
       - 4000:4000
+
+  postgres:
+    container_name: postgres_db
+    image: postgres:latest
+    env_file:
+      - .env
+    volumes:
+      - postgres-db:/data/postgres
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres-db:
+    driver: local
