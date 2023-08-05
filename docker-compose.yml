@@ -6,7 +6,7 @@ services:
       context: .
       target: development
     container_name: home-library-c
-    image: home-lib:v1
+    image: tomza23/home-library:v1
     command: npm run start:dev
     restart: always
     volumes:
