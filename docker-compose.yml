@@ -6,24 +6,36 @@ services:
       context: .
       target: development
     container_name: home-library-c
+    image: home-lib:v1
+    command: npm run start:dev
+    restart: always
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./src:/app/src
     env_file:
       - .env
-    command: npm run start:dev
     ports:
-      - 4000:4000
+      - '4000:4000'
+    links:
+      - postgres
+    depends_on:
+      - postgres
 
   postgres:
-    container_name: postgres_db
-    image: postgres:latest
+    container_name: postgres
+    image: postgres:15-alpine
+    restart: always
     env_file:
       - .env
     volumes:
       - postgres-db:/data/postgres
     ports:
-      - 5432:5432
+      - '5432:5432'
+
+  adminer:
+    image: adminer:4.8.1
+    restart: always
+    ports:
+      - 8080:8080
 
 volumes:
   postgres-db:
