@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
@@ -13,8 +12,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
-  private users = new Map<string, User>();
-
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
@@ -33,35 +30,39 @@ export class UserService {
     });
 
     await this.entityManager.save(newUser);
-    return newUser;
-    // this.users.set(newUser.id, newUser);
 
-    // const { password, ...restNewUser } = newUser;
-    // return restNewUser;
+    delete newUser.password;
+    return newUser;
   }
 
   async findAll() {
-    return await this.usersRepository.find();
-    // const users = Array.from(this.users.values());
-    // const usersDto: Omit<User, 'password'>[] = users.map((user) => {
-    //   const { password, ...restUser } = user;
-    //   return restUser;
-    // });
-    // return usersDto;
+    const users = await this.usersRepository.find();
+    const usersWithCorrectType = users.map(
+      ({ id, login, version, createdAt, updatedAt }) => ({
+        id,
+        login,
+        version,
+        createdAt: +createdAt,
+        updatedAt: +updatedAt,
+      }),
+    );
+    return usersWithCorrectType;
   }
 
   async findOne(id: string) {
-    return await this.usersRepository.findOneBy({ id });
-    // const user = this.checkAndGetUser(id);
-    // const { password, ...restUser } = user;
-    // return restUser;
+    return await this.checkAndGetUser(id);
   }
 
   async update(id: string, updatePasswordDto: UpdatePasswordDto) {
     const user = await this.checkAndGetUser(id);
+    const userPass = await this.usersRepository.findOne({
+      where: { id },
+      select: { password: true },
+    });
+
     const result = await comparePass(
       updatePasswordDto.oldPassword,
-      user.password,
+      userPass.password,
     );
 
     if (!result)
@@ -70,30 +71,25 @@ export class UserService {
     const newPassword = await createHashPass(updatePasswordDto.newPassword);
 
     user.password = newPassword;
+    user.version += 1;
+    user.updatedAt = new Date().getTime();
 
     await this.entityManager.save(user);
+
+    delete user.password;
     return user;
-    // const { password, ...restUser } = user;
-
-    // const updUser: Omit<User, 'password'> = {
-    //   ...restUser,
-    //   version: ++user.version,
-    //   updatedAt: new Date().getTime(),
-    // };
-
-    // this.users.set(id, { ...updUser, password: newPassword });
-    // return updUser;
   }
 
   async remove(id: string) {
     await this.checkAndGetUser(id);
     await this.usersRepository.delete(id);
-    // this.users.delete(id);
   }
 
   private async checkAndGetUser(id: string) {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
+    user.updatedAt = +user.updatedAt;
+    user.createdAt = +user.createdAt;
     return user;
   }
 }

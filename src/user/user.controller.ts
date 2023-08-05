@@ -32,13 +32,13 @@ export class UserController {
   @ApiCreatedResponse({ description: 'User created successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+    return await this.userService.create(createUserDto);
   }
 
   @Get()
   @ApiOkResponse({ description: 'Users were returned successfully' })
   async findAll() {
-    return this.userService.findAll();
+    return await this.userService.findAll();
   }
 
   @Get(':id')
@@ -46,7 +46,7 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'User not found' })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.userService.findOne(id);
+    return await this.userService.findOne(id);
   }
 
   @Put(':id')
@@ -58,7 +58,7 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updatePasswordDto: UpdatePasswordDto,
   ) {
-    return this.userService.update(id, updatePasswordDto);
+    return await this.userService.update(id, updatePasswordDto);
   }
 
   @Delete(':id')
@@ -67,6 +67,6 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'User not found' })
   @HttpCode(204)
   async remove(@Param('id', ParseUUIDPipe) id: string) {
-    this.userService.remove(id);
+    await this.userService.remove(id);
   }
 }
