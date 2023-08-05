@@ -15,21 +15,23 @@ services:
       - .env
     ports:
       - '4000:4000'
-    links:
-      - postgres
     depends_on:
-      - postgres
+      - postgres-db
+    networks:
+      - api
 
-  postgres:
-    container_name: postgres
+  postgres-db:
+    container_name: postgres-db
     image: postgres:15-alpine
     restart: always
     env_file:
       - .env
     volumes:
-      - postgres-db:/data/postgres
+      - db_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
+    networks:
+      - api
 
   adminer:
     image: adminer:4.8.1
@@ -38,5 +40,10 @@ services:
       - 8080:8080
 
 volumes:
-  postgres-db:
+  db_data:
+    name: db_data
     driver: local
+
+networks:
+  api:
+    driver: bridge
