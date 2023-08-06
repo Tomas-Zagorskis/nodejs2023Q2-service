@@ -30,33 +30,33 @@ export class ArtistController {
   @Post()
   @ApiCreatedResponse({ description: 'Artist created successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  create(@Body(new ValidationPipe()) createArtistDto: CreateArtistDto) {
-    return this.artistService.create(createArtistDto);
+  async create(@Body(new ValidationPipe()) createArtistDto: CreateArtistDto) {
+    return await this.artistService.create(createArtistDto);
   }
 
   @Get()
   @ApiOkResponse({ description: 'Artists were returned successfully' })
-  findAll() {
-    return this.artistService.findAll();
+  async findAll() {
+    return await this.artistService.findAll();
   }
 
   @Get(':id')
   @ApiOkResponse({ description: 'Artist was returned successfully' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Artist not found' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.artistService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.artistService.findOne(id);
   }
 
   @Put(':id')
   @ApiOkResponse({ description: 'Updated successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiNotFoundResponse({ description: 'Artist not found' })
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateArtistDto: UpdateArtistDto,
   ) {
-    return this.artistService.update(id, updateArtistDto);
+    return await this.artistService.update(id, updateArtistDto);
   }
 
   @Delete(':id')
@@ -64,7 +64,7 @@ export class ArtistController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Artist not found' })
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    this.artistService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.artistService.remove(id);
   }
 }
