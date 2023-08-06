@@ -4,8 +4,8 @@
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
-
-## Downloading
+## 1. Start App for development:
+### Downloading
 
 ```
 git clone {repository URL}
@@ -13,24 +13,24 @@ git clone {repository URL}
 cd {directory name}
 ```
 
-## Installing NPM modules
+### Installing NPM modules
 
 ```
 npm install
 ```
 
-## Create Env
+### Create Env
 
 ```
 cp .env.example .env
 ```
 
-## Running application
+### Running application
 
-```
-npm start
+```javascript
+npm start  // postgres image must be running
 
-or using docker
+// or using docker
 
 docker-compose up
 ```
@@ -38,6 +38,41 @@ docker-compose up
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/api/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
+
+## 2. Start App for production with docker:
+### Pull Images
+```js
+  // backend api
+  docker image pull tomza23/home-library:v1
+
+  //  for database using postgresSQL
+  docker image pull postgres:15-alpine
+```
+
+### Create Network
+```
+  docker network create my-net
+```
+
+### Create ENV
+- Copy or create .env.example file with its content from code source in your local machine.
+
+### Run Images
+```js
+  // database
+  docker run --name postgres-db -d --network=my-net --env-file ./.env.example -p 5432:5432 -v db_data:/var/lib/postgresql/data --restart always postgres:15-alpine
+
+  // api
+  docker run --name api -d --network=my-net --env-file ./.env.example -p 4000:4000 tomza23/home-library:v1
+```
+Flags:
+- `--name` - container name;
+- `-d` - detach image from terminal after cmd line is written;
+- `--network` - connect images to local network;
+- `--env-file` - attach enviroment variables to image;
+- `-p` - map port with image;
+- `-v` - create volume;
+- `--restart` - restart image after crash.
 
 ## Testing
 
@@ -67,7 +102,7 @@ To run only specific test suite with authorization
 npm run test:auth -- <path to suite>
 ```
 
-### Auto-fix and format
+## Auto-fix and format
 
 ```
 npm run lint
@@ -77,7 +112,7 @@ npm run lint
 npm run format
 ```
 
-### Server API
+## Server API
 
 - `OpenApi` (`/api` route) - endpoints documentation
 
