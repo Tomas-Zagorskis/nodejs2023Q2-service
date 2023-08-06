@@ -30,33 +30,33 @@ export class TrackController {
   @Post()
   @ApiCreatedResponse({ description: 'Track created successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  create(@Body(new ValidationPipe()) createTrackDto: CreateTrackDto) {
-    return this.trackService.create(createTrackDto);
+  async create(@Body(new ValidationPipe()) createTrackDto: CreateTrackDto) {
+    return await this.trackService.create(createTrackDto);
   }
 
   @Get()
   @ApiOkResponse({ description: 'Tracks were returned successfully' })
-  findAll() {
-    return this.trackService.findAll();
+  async findAll() {
+    return await this.trackService.findAll();
   }
 
   @Get(':id')
   @ApiOkResponse({ description: 'Track was returned successfully' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Track not found' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.trackService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.trackService.findOne(id);
   }
 
   @Put(':id')
   @ApiOkResponse({ description: 'Updated successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiNotFoundResponse({ description: 'Track not found' })
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateTrackDto: UpdateTrackDto,
   ) {
-    return this.trackService.update(id, updateTrackDto);
+    return await this.trackService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
@@ -64,7 +64,7 @@ export class TrackController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Track not found' })
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    this.trackService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.trackService.remove(id);
   }
 }
