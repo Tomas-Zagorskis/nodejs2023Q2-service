@@ -24,45 +24,32 @@ export class UserService {
     const newUser = new User({
       login: createUserDto.login,
       password: hashPass,
-      version: 1,
       createdAt: new Date().getTime(),
       updatedAt: new Date().getTime(),
     });
 
-    await this.entityManager.save(newUser);
+    const savedUser = await this.entityManager.save(newUser);
 
-    delete newUser.password;
-    return newUser;
+    return savedUser.toResponse();
   }
 
   async findAll() {
     const users = await this.usersRepository.find();
-    const usersWithCorrectType = users.map(
-      ({ id, login, version, createdAt, updatedAt }) => ({
-        id,
-        login,
-        version,
-        createdAt: +createdAt,
-        updatedAt: +updatedAt,
-      }),
-    );
+    const usersWithCorrectType = users.map((user) => user.toResponse());
     return usersWithCorrectType;
   }
 
   async findOne(id: string) {
-    return await this.checkAndGetUser(id);
+    const user = await this.checkAndGetUser(id);
+    return user.toResponse();
   }
 
   async update(id: string, updatePasswordDto: UpdatePasswordDto) {
     const user = await this.checkAndGetUser(id);
-    const userPass = await this.usersRepository.findOne({
-      where: { id },
-      select: { password: true },
-    });
 
     const result = await comparePass(
       updatePasswordDto.oldPassword,
-      userPass.password,
+      user.password,
     );
 
     if (!result)
@@ -76,8 +63,7 @@ export class UserService {
 
     await this.entityManager.save(user);
 
-    delete user.password;
-    return user;
+    return user.toResponse();
   }
 
   async remove(id: string) {
@@ -88,8 +74,6 @@ export class UserService {
   private async checkAndGetUser(id: string) {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
-    user.updatedAt = +user.updatedAt;
-    user.createdAt = +user.createdAt;
     return user;
   }
 }

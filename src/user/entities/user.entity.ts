@@ -8,7 +8,7 @@ export class User {
   @Column()
   login!: string;
 
-  @Column({ select: false })
+  @Column()
   password!: string;
 
   @Column({ default: 1 })
@@ -22,5 +22,11 @@ export class User {
 
   constructor(user: Partial<User>) {
     Object.assign(this, user);
+  }
+
+  toResponse() {
+    const { id, login, version, createdAt, updatedAt } = this;
+
+    return { id, login, version, createdAt: +createdAt, updatedAt: +updatedAt };
   }
 }
