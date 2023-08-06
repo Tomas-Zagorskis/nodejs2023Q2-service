@@ -30,33 +30,33 @@ export class AlbumController {
   @Post()
   @ApiCreatedResponse({ description: 'Album created successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  create(@Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto) {
-    return this.albumService.create(createAlbumDto);
+  async create(@Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto) {
+    return await this.albumService.create(createAlbumDto);
   }
 
   @Get()
   @ApiOkResponse({ description: 'Albums were returned successfully' })
-  findAll() {
-    return this.albumService.findAll();
+  async findAll() {
+    return await this.albumService.findAll();
   }
 
   @Get(':id')
   @ApiOkResponse({ description: 'Album was returned successfully' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Album not found' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.albumService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.albumService.findOne(id);
   }
 
   @Put(':id')
   @ApiOkResponse({ description: 'Updated successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiNotFoundResponse({ description: 'Album not found' })
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateAlbumDto: UpdateAlbumDto,
   ) {
-    return this.albumService.update(id, updateAlbumDto);
+    return await this.albumService.update(id, updateAlbumDto);
   }
 
   @Delete(':id')
@@ -64,7 +64,7 @@ export class AlbumController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Album not found' })
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    this.albumService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.albumService.remove(id);
   }
 }
