@@ -32,12 +32,15 @@ services:
       - '5432:5432'
     networks:
       - api
+      - db
 
   adminer:
     image: adminer:4.8.1
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - db
 
 volumes:
   db_data:
@@ -45,5 +48,6 @@ volumes:
     driver: local
 
 networks:
+  db:
   api:
     driver: bridge
