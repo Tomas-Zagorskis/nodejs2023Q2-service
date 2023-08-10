@@ -102,6 +102,27 @@ To run only specific test suite with authorization
 npm run test:auth -- <path to suite>
 ```
 
+## Migration
+
+- Create new migration:
+```
+npm run migration:create
+```
+- Run created migrations:
+```
+npm run migration:run
+```
+- Revert migrations:
+```
+npm run migration:revert
+```
+
+## Scan docker image 
+
+```
+npm run docker:scan
+```
+
 ## Auto-fix and format
 
 ```
