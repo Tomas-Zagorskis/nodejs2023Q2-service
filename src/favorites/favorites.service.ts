@@ -19,9 +19,9 @@ export class FavoritesService {
     const favorites = await this.getFavorites();
 
     const mapFavorites: FavoritesResponse = {
-      albums: favorites?.albums || [],
-      artists: favorites?.artists || [],
-      tracks: favorites?.tracks || [],
+      albums: favorites.albums,
+      artists: favorites.artists,
+      tracks: favorites.tracks,
     };
 
     return mapFavorites;
@@ -49,7 +49,7 @@ export class FavoritesService {
   }
 
   private async getFavorites() {
-    return await this.favRepository.findOne({
+    let favorites = await this.favRepository.findOne({
       where: {},
       relations: {
         albums: true,
@@ -57,6 +57,16 @@ export class FavoritesService {
         tracks: true,
       },
     });
+
+    if (!favorites) {
+      favorites = {
+        albums: [],
+        artists: [],
+        tracks: [],
+      } as Favorites;
+    }
+
+    return favorites;
   }
 
   private async checkAndGetEntity(
@@ -76,10 +86,11 @@ export class FavoritesService {
         entity = await this.entityManager.findOneBy(Artist, { id });
     }
 
-    if (!entity)
+    if (!entity) {
       throw new UnprocessableEntityException(
         `${item.charAt(0).toUpperCase() + item.slice(1)} not found`,
       );
+    }
 
     return entity;
   }
