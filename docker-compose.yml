@@ -14,7 +14,7 @@ services:
     env_file:
       - .env
     ports:
-      - '4000:4000'
+      - '${PORT}:${PORT}'
     depends_on:
       - postgres-db
     networks:
@@ -29,7 +29,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     networks:
       - api
       - db
@@ -38,7 +38,7 @@ services:
     image: adminer:4.8.1
     restart: always
     ports:
-      - 8080:8080
+      - ${ADMINER_PORT}:${ADMINER_PORT}
     networks:
       - db
 
