@@ -2,7 +2,7 @@ version: '3.8'
 services:
   home-library:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.api
       context: .
       target: development
     container_name: home-library-c
@@ -22,12 +22,16 @@ services:
 
   postgres-db:
     container_name: postgres-db
-    image: postgres:15-alpine
+    build:
+      dockerfile: Dockerfile.db
+      context: .
+    image: tomza23/home-library-db:v1
     restart: always
     env_file:
       - .env
     volumes:
       - db_data:/var/lib/postgresql/data
+      - db_logs:/var/log/postgresql
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     networks:
@@ -45,6 +49,9 @@ services:
 volumes:
   db_data:
     name: db_data
+    driver: local
+  db_logs:
+    name: db_logs
     driver: local
 
 networks:
