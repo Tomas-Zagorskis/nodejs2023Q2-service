@@ -391,8 +391,6 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-        422:
-          description: Related entities don't exists.
   /track/{id}:
     parameters:
       - name: id
@@ -549,8 +547,6 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-        422:
-          description: Related entities don't exists.
   /album/{id}:
     parameters:
       - name: id
@@ -614,8 +610,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Album was not found.
-        422:
-          description: Related entities don't exists.
     delete:
       tags:
         - Album
@@ -677,8 +671,6 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-        422:
-          description: Related entities don't exists.
   /artist/{id}:
     parameters:
       - name: id
@@ -737,8 +729,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Artist was not found.
-        422:
-          description: Related entities don't exists.
     delete:
       tags:
         - Artist
