@@ -1,93 +1,97 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Album } from 'src/album/entities/album.entity';
+import { Artist } from 'src/artist/entities/artist.entity';
+import { Track } from 'src/track/entities/track.entity';
+import { EntityManager, Repository } from 'typeorm';
 import { Favorites } from './entities/favorites.entity';
-import { ArtistService } from 'src/artist/artist.service';
-import { AlbumService } from 'src/album/album.service';
-import { TrackService } from 'src/track/track.service';
 import { FavoritesResponse } from './interfaces/favoritesResponse.interface';
 
 @Injectable()
 export class FavoritesService {
-  private favs: Favorites = { albums: [], artists: [], tracks: [] };
-
   constructor(
-    private readonly artistService: ArtistService,
-    private readonly albumService: AlbumService,
-    private readonly trackService: TrackService,
+    @InjectRepository(Favorites)
+    private readonly favRepository: Repository<Favorites>,
+    private readonly entityManager: EntityManager,
   ) {}
 
-  findAll() {
-    const artistsEnt = this.favs.artists
-      .map((id) => {
-        try {
-          return this.artistService.findOne(id);
-        } catch {
-          return;
-        }
-      })
-      .filter((v) => v);
-    const albumsEnt = this.favs.albums
-      .map((id) => {
-        try {
-          return this.albumService.findOne(id);
-        } catch {
-          return;
-        }
-      })
-      .filter((v) => v);
-    const tracksEnt = this.favs.tracks
-      .map((id) => {
-        try {
-          return this.trackService.findOne(id);
-        } catch {
-          return;
-        }
-      })
-      .filter((v) => v);
+  async findFavorites() {
+    const favorites = await this.getFavorites();
 
-    const favoritesWithEntities: FavoritesResponse = {
-      artists: artistsEnt,
-      albums: albumsEnt,
-      tracks: tracksEnt,
+    const mapFavorites: FavoritesResponse = {
+      albums: favorites.albums,
+      artists: favorites.artists,
+      tracks: favorites.tracks,
     };
 
-    return favoritesWithEntities;
+    return mapFavorites;
   }
 
-  addItem(id: string, item: 'album' | 'track' | 'artist') {
-    const { service } = this.extractItemInstance(item);
+  async addItem(id: string, item: 'album' | 'track' | 'artist') {
+    const entity = await this.checkAndGetEntity(id, item);
+    const favorites = await this.getFavorites();
 
-    service.findOne(id);
-    this.favs[`${item}s`].push(id);
+    favorites[`${item}s`].push(entity as any);
+
+    await this.favRepository.save(favorites);
   }
 
-  removeItem(id: string, item: 'album' | 'track' | 'artist') {
-    const { itemList } = this.extractItemInstance(item);
-    const itemId = itemList.find((itemId) => itemId === id);
-    if (!itemId) throw new NotFoundException(`The ${item} is not favorited`);
-    this.favs[`${item}s`] = itemList.filter((itemId) => itemId !== id);
+  async removeItem(id: string, item: 'album' | 'track' | 'artist') {
+    const entity = await this.checkAndGetEntity(id, item);
+    const favorites = await this.getFavorites();
+
+    const entityIndex = favorites[`${item}s`].findIndex(
+      (item) => item.id === entity.id,
+    );
+
+    favorites[`${item}s`].splice(entityIndex, 1);
+    await this.favRepository.save(favorites);
   }
 
-  private extractItemInstance(item: 'album' | 'track' | 'artist') {
-    let service: ArtistService | AlbumService | TrackService;
-    let itemList: string[];
+  private async getFavorites() {
+    let favorites = await this.favRepository.findOne({
+      where: {},
+      relations: {
+        albums: true,
+        artists: true,
+        tracks: true,
+      },
+    });
+
+    if (!favorites) {
+      favorites = {
+        albums: [],
+        artists: [],
+        tracks: [],
+      } as Favorites;
+    }
+
+    return favorites;
+  }
+
+  private async checkAndGetEntity(
+    id: string,
+    item: 'album' | 'track' | 'artist',
+  ) {
+    let entity: Artist | Album | Track;
 
     switch (item) {
       case 'album':
-        service = this.albumService;
-        itemList = this.favs.albums;
+        entity = await this.entityManager.findOneBy(Album, { id });
         break;
       case 'track':
-        service = this.trackService;
-        itemList = this.favs.tracks;
+        entity = await this.entityManager.findOneBy(Track, { id });
         break;
       case 'artist':
-        service = this.artistService;
-        itemList = this.favs.artists;
+        entity = await this.entityManager.findOneBy(Artist, { id });
     }
 
-    return {
-      service,
-      itemList,
-    };
+    if (!entity) {
+      throw new UnprocessableEntityException(
+        `${item.charAt(0).toUpperCase() + item.slice(1)} not found`,
+      );
+    }
+
+    return entity;
   }
 }

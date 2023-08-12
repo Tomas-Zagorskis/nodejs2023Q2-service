@@ -6,10 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
-  UnprocessableEntityException,
 } from '@nestjs/common';
-import { StatusCodes } from 'http-status-codes';
-import { FavoritesService } from './favorites.service';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -19,6 +16,8 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { StatusCodes } from 'http-status-codes';
+import { FavoritesService } from './favorites.service';
 
 @ApiTags('Favorites')
 @Controller('favs')
@@ -27,8 +26,8 @@ export class FavoritesController {
 
   @Get()
   @ApiOkResponse({ description: 'Favorites were returned successfully' })
-  findAll() {
-    return this.favoritesService.findAll();
+  async findAll() {
+    return await this.favoritesService.findFavorites();
   }
 
   @Post('track/:id')
@@ -37,19 +36,13 @@ export class FavoritesController {
   @ApiUnprocessableEntityResponse({
     description: "Track with this id doesn't exist",
   })
-  addTrack(@Param('id', ParseUUIDPipe) id: string) {
-    try {
-      this.favoritesService.addItem(id, 'track');
-      return {
-        statusCode: StatusCodes.CREATED,
-        message: 'Track successfully added',
-        error: null,
-      };
-    } catch {
-      throw new UnprocessableEntityException(
-        "Track with this id doesn't exist",
-      );
-    }
+  async addTrack(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.addItem(id, 'track');
+    return {
+      statusCode: StatusCodes.CREATED,
+      message: 'Track successfully added',
+      error: null,
+    };
   }
 
   @Delete('track/:id')
@@ -57,8 +50,8 @@ export class FavoritesController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Track not found' })
   @HttpCode(204)
-  removeTrack(@Param('id', ParseUUIDPipe) id: string) {
-    this.favoritesService.removeItem(id, 'track');
+  async removeTrack(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.removeItem(id, 'track');
   }
 
   @Post('album/:id')
@@ -67,19 +60,13 @@ export class FavoritesController {
   @ApiUnprocessableEntityResponse({
     description: "Album with this id doesn't exist",
   })
-  addAlbum(@Param('id', ParseUUIDPipe) id: string) {
-    try {
-      this.favoritesService.addItem(id, 'album');
-      return {
-        statusCode: StatusCodes.CREATED,
-        message: 'Album successfully added',
-        error: null,
-      };
-    } catch {
-      throw new UnprocessableEntityException(
-        "Album with this id doesn't exist",
-      );
-    }
+  async addAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.addItem(id, 'album');
+    return {
+      statusCode: StatusCodes.CREATED,
+      message: 'Album successfully added',
+      error: null,
+    };
   }
 
   @Delete('album/:id')
@@ -87,8 +74,8 @@ export class FavoritesController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Album not found' })
   @HttpCode(204)
-  removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
-    this.favoritesService.removeItem(id, 'album');
+  async removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.removeItem(id, 'album');
   }
 
   @Post('artist/:id')
@@ -97,19 +84,13 @@ export class FavoritesController {
   @ApiUnprocessableEntityResponse({
     description: "Artist with this id doesn't exist",
   })
-  addArtist(@Param('id', ParseUUIDPipe) id: string) {
-    try {
-      this.favoritesService.addItem(id, 'artist');
-      return {
-        statusCode: StatusCodes.CREATED,
-        message: 'Artist successfully added',
-        error: null,
-      };
-    } catch {
-      throw new UnprocessableEntityException(
-        "Artist with this id doesn't exist",
-      );
-    }
+  async addArtist(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.addItem(id, 'artist');
+    return {
+      statusCode: StatusCodes.CREATED,
+      message: 'Artist successfully added',
+      error: null,
+    };
   }
 
   @Delete('artist/:id')
@@ -117,7 +98,7 @@ export class FavoritesController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'Artist not found' })
   @HttpCode(204)
-  removeArtist(@Param('id', ParseUUIDPipe) id: string) {
-    this.favoritesService.removeItem(id, 'artist');
+  async removeArtist(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.removeItem(id, 'artist');
   }
 }

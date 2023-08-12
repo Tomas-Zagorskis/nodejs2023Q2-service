@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  home-library:
+    build:
+      dockerfile: Dockerfile.api
+      context: .
+      target: development
+    container_name: home-library-c
+    image: tomza23/home-library:v1
+    command: npm run start:dev
+    restart: always
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - .env
+    ports:
+      - '${PORT}:${PORT}'
+    depends_on:
+      - postgres-db
+    networks:
+      - api
+
+  postgres-db:
+    container_name: postgres-db
+    build:
+      dockerfile: Dockerfile.db
+      context: .
+    image: tomza23/home-library-db:v1
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - db_logs:/var/log/postgresql
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    networks:
+      - api
+      - db
+
+  adminer:
+    image: adminer:4.8.1
+    restart: always
+    ports:
+      - ${ADMINER_PORT}:${ADMINER_PORT}
+    networks:
+      - db
+
+volumes:
+  db_data:
+    name: db_data
+    driver: local
+  db_logs:
+    name: db_logs
+    driver: local
+
+networks:
+  db:
+  api:
+    driver: bridge

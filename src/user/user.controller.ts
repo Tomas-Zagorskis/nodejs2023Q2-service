@@ -31,22 +31,22 @@ export class UserController {
   @Post()
   @ApiCreatedResponse({ description: 'User created successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
+    return await this.userService.create(createUserDto);
   }
 
   @Get()
   @ApiOkResponse({ description: 'Users were returned successfully' })
-  findAll() {
-    return this.userService.findAll();
+  async findAll() {
+    return await this.userService.findAll();
   }
 
   @Get(':id')
   @ApiOkResponse({ description: 'User was returned successfully' })
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.userService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.userService.findOne(id);
   }
 
   @Put(':id')
@@ -54,11 +54,11 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiForbiddenResponse({ description: 'Wrong old password' })
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updatePasswordDto: UpdatePasswordDto,
   ) {
-    return this.userService.update(id, updatePasswordDto);
+    return await this.userService.update(id, updatePasswordDto);
   }
 
   @Delete(':id')
@@ -66,7 +66,7 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid id' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    this.userService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.userService.remove(id);
   }
 }

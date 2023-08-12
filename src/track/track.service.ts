@@ -1,54 +1,82 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { Track } from './entities/track.entity';
-import { v4 as uuid } from 'uuid';
+import { Artist } from 'src/artist/entities/artist.entity';
+import { Album } from 'src/album/entities/album.entity';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class TrackService {
-  private tracks = new Map<string, Track>();
+  constructor(
+    @InjectRepository(Track)
+    private readonly tracksRepository: Repository<Track>,
+    private readonly entityManager: EntityManager,
+  ) {}
 
-  create(createTrackDto: CreateTrackDto) {
-    const newTrack: Track = {
-      id: uuid(),
-      artistId: null,
-      albumId: null,
+  async create(createTrackDto: CreateTrackDto) {
+    await this.checkArtistAndAlbumId(
+      createTrackDto.artistId,
+      createTrackDto.albumId,
+    );
+
+    const newTrack = new Track({
       ...createTrackDto,
-    };
+    });
 
-    this.tracks.set(newTrack.id, newTrack);
+    await this.entityManager.save(newTrack);
     return newTrack;
   }
 
-  findAll() {
-    const tracks = Array.from(this.tracks.values());
-    return tracks;
+  async findAll() {
+    return await this.tracksRepository.find();
   }
 
-  findOne(id: string) {
-    const track = this.tracks.get(id);
+  async findOne(id: string) {
+    const track = await this.tracksRepository.findOneBy({ id });
     if (!track) throw new NotFoundException('Track not found');
     return track;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    const track = this.findOne(id);
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    const track = await this.findOne(id);
+    await this.checkArtistAndAlbumId(
+      updateTrackDto.artistId,
+      updateTrackDto.albumId,
+    );
+
     const updTrack: Track = { ...track, ...updateTrackDto };
-    this.tracks.set(id, updTrack);
+    this.entityManager.save(Track, updTrack);
     return updTrack;
   }
 
-  remove(id: string) {
-    this.findOne(id);
-    this.tracks.delete(id);
+  async remove(id: string) {
+    await this.findOne(id);
+    await this.tracksRepository.delete(id);
   }
 
-  removeIdReference(id: string, key: 'artistId' | 'albumId') {
-    const tracks = this.findAll();
-    tracks.forEach((track) => {
-      if (track[key] === id) {
-        this.tracks.set(track.id, { ...track, [key]: null });
-      }
-    });
+  private async checkArtistAndAlbumId(
+    artistId: string | null,
+    albumId: string | null,
+  ) {
+    if (artistId) {
+      if (!isUUID(artistId, '4'))
+        throw new BadRequestException('Id is invalid');
+      const artist = await this.entityManager.findOneBy(Artist, {
+        id: artistId,
+      });
+      if (!artist) throw new NotFoundException('Artist not found');
+    }
+    if (albumId) {
+      if (!isUUID(albumId, '4')) throw new BadRequestException('Id is invalid');
+      const album = await this.entityManager.findOneBy(Album, { id: albumId });
+      if (!album) throw new NotFoundException('Album not found');
+    }
   }
 }
