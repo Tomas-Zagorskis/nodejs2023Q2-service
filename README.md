@@ -46,7 +46,7 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
   docker image pull tomza23/home-library:v1
 
   //  for database using postgresSQL
-  docker image pull postgres:15-alpine
+  docker image pull tomza23/home-library-db:v1
 ```
 
 ### Create Network
@@ -60,7 +60,7 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 ### Run Images
 ```js
   // database
-  docker run --name postgres-db -d --network=my-net --env-file ./.env.example -p 5432:5432 -v db_data:/var/lib/postgresql/data --restart always postgres:15-alpine
+  docker run --name postgres-db -d --network=my-net --env-file ./.env.example -p 5432:5432 -v db_data:/var/lib/postgresql/data --restart always tomza23/home-library-db:v1
 
   // api
   docker run --name api -d --network=my-net --env-file ./.env.example -p 4000:4000 tomza23/home-library:v1
@@ -120,7 +120,8 @@ npm run migration:revert
 ## Scan docker image 
 
 ```
-npm run docker:scan
+npm run docker:scan-api
+npm run docker:scan-db
 ```
 
 ## Auto-fix and format
