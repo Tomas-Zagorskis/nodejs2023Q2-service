@@ -32,7 +32,7 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiForbiddenResponse({ description: 'Wrong login/password' })
   async login(@Body(new ValidationPipe()) createAuthDto: CreateAuthDto) {
-    await this.authService.login(createAuthDto);
+    return await this.authService.login(createAuthDto);
   }
 
   @Post('/refresh')
@@ -41,6 +41,6 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Missing token' })
   @ApiForbiddenResponse({ description: 'Token expired' })
   async refresh(@Body(new ValidationPipe()) refreshAuthDto: RefreshAuthDto) {
-    await this.authService.refresh(refreshAuthDto);
+    return await this.authService.refresh(refreshAuthDto);
   }
 }
