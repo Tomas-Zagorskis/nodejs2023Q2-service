@@ -3,12 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
 import { comparePass, createHashPass } from './helpers/password';
-import { EntityManager, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
@@ -17,21 +16,6 @@ export class UserService {
     private readonly usersRepository: Repository<User>,
     private readonly entityManager: EntityManager,
   ) {}
-
-  async create(createUserDto: CreateUserDto) {
-    const hashPass = await createHashPass(createUserDto.password);
-
-    const newUser = new User({
-      login: createUserDto.login,
-      password: hashPass,
-      createdAt: new Date().getTime(),
-      updatedAt: new Date().getTime(),
-    });
-
-    const savedUser = await this.entityManager.save(newUser);
-
-    return savedUser.toResponse();
-  }
 
   async findAll() {
     const users = await this.usersRepository.find();

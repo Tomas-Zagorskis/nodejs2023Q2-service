@@ -6,20 +6,17 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
-  Post,
   Put,
   ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UserService } from './user.service';
 
@@ -27,13 +24,6 @@ import { UserService } from './user.service';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post()
-  @ApiCreatedResponse({ description: 'User created successfully' })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
-    return await this.userService.create(createUserDto);
-  }
 
   @Get()
   @ApiOkResponse({ description: 'Users were returned successfully' })
