@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggingModule } from './logging/logging.module';
 import { LoggingMiddleware } from './logging/logging.middleware';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +21,7 @@ import { LoggingMiddleware } from './logging/logging.middleware';
     AlbumModule,
     FavoritesModule,
     LoggingModule,
+    AuthModule,
   ],
 })
 export class AppModule implements NestModule {
