@@ -12,9 +12,19 @@ async function bootstrap() {
   });
 
   const httpAdapterHost = app.get(HttpAdapterHost);
+  const loggingService = app.get(LoggingService);
 
   app.useLogger(app.get(LoggingService));
+
   app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
+
+  process.on('uncaughtException', (error) => {
+    loggingService.error('Uncaught Exception', error.stack);
+  });
+
+  process.on('unhandledRejection', (reason: Error) => {
+    loggingService.error('Unhandled Rejection', reason.stack);
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Home Music Library')
