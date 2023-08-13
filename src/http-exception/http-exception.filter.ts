@@ -7,7 +7,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { Request, Response } from 'express';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -30,7 +29,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.message
         : 'Oops, something went wrong!';
 
-    this.logger.error(`Error: ${status} ${message}`);
+    const trace = (exception as HttpException).stack;
+
+    this.logger.error(`Error: ${status} ${message}`, trace);
 
     const responseBody = {
       statusCode: status,
