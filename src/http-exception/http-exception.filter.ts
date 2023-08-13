@@ -3,25 +3,42 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
 
-@Catch(HttpException)
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  private readonly logger = new Logger('HttpException');
+
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const { httpAdapter } = this.httpAdapterHost;
+
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-    const status = exception.getStatus();
+
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const message =
-      status === 500 ? 'Oops, something went wrong!' : exception.message;
+      exception instanceof HttpException
+        ? exception.message
+        : 'Oops, something went wrong!';
 
-    response.status(status).json({
+    this.logger.error(`Error: ${status} ${message}`);
+
+    const responseBody = {
       statusCode: status,
       timestamp: new Date().toISOString(),
-      path: request.url,
+      path: httpAdapter.getRequestUrl(ctx.getRequest()),
       message,
-    });
+    };
+
+    httpAdapter.reply(ctx.getResponse(), responseBody, status);
   }
 }
