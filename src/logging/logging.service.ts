@@ -55,7 +55,7 @@ export class LoggingService extends ConsoleLogger {
   }
 
   private async writeToFile(logEntry: string, level: string) {
-    let dirPath = resolve(__dirname, `../logs/${level}s`);
+    const dirPath = resolve(__dirname, `../logs/${level}s`);
 
     if (!existsSync(dirPath)) {
       await mkdir(dirPath, { recursive: true });
