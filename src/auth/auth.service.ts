@@ -35,7 +35,7 @@ export class AuthService {
 
     if (!result) throw new ForbiddenException('Wrong login/password');
 
-    return await this.getJwtResponse(user);
+    return await this.getJwtResponse(user.id, user.login);
   }
 
   async refresh(refreshAuthDto: RefreshAuthDto) {
@@ -57,19 +57,16 @@ export class AuthService {
 
     if (!user) throw new ForbiddenException();
 
-    return await this.getJwtResponse(user);
+    return await this.getJwtResponse(user.id, user.login);
   }
 
-  private async getJwtResponse(user: User) {
-    const { accessToken, refreshToken } = await this.getTokens(
-      user.id,
-      user.login,
-    );
+  private async getJwtResponse(userId: string, login: string) {
+    const { accessToken, refreshToken } = await this.getTokens(userId, login);
 
     const decodeToken = this.jwtService.decode(accessToken);
     const timeInSec = new Date().getTime() / 1000;
     const expIn = +(decodeToken['exp'] - timeInSec).toFixed(0);
-    await this.entityManager.update(User, { id: user.id }, { refreshToken });
+    await this.entityManager.update(User, { id: userId }, { refreshToken });
     return {
       accessToken,
       expiresIn: expIn,
