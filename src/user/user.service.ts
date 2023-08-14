@@ -24,7 +24,7 @@ export class UserService {
     const hashPass = await createHashPass(createUserDto.password);
 
     const newUser = new User({
-      login: createUserDto.login.toLowerCase(),
+      login: createUserDto.login,
       password: hashPass,
       createdAt: new Date().getTime(),
       updatedAt: new Date().getTime(),
@@ -81,7 +81,7 @@ export class UserService {
 
   async checkLogin(login: string, action: 'create' | 'login') {
     const user = await this.entityManager.findOneBy(User, {
-      login: login.toLowerCase(),
+      login: login,
     });
     if (user && action === 'create')
       throw new BadRequestException('Login already exist!');
