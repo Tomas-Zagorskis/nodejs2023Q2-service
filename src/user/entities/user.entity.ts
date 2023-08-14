@@ -5,20 +5,23 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
 
-  @Column()
+  @Column({ unique: true })
   login!: string;
 
   @Column()
   password!: string;
 
   @Column({ default: 1 })
-  version?: number;
+  version: number;
 
   @Column('bigint')
-  createdAt?: number;
+  createdAt: number;
 
   @Column('bigint')
-  updatedAt?: number;
+  updatedAt: number;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 
   constructor(user: Partial<User>) {
     Object.assign(this, user);

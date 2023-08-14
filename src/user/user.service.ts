@@ -1,14 +1,15 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
-import { comparePass, createHashPass } from './helpers/password';
-import { EntityManager, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { comparePass, createHashPass } from '../utility/utils';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    await this.checkLogin(createUserDto.login, 'create');
     const hashPass = await createHashPass(createUserDto.password);
 
     const newUser = new User({
@@ -74,6 +76,17 @@ export class UserService {
   private async checkAndGetUser(id: string) {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async checkLogin(login: string, action: 'create' | 'login') {
+    const user = await this.entityManager.findOneBy(User, {
+      login: login,
+    });
+    if (user && action === 'create')
+      throw new BadRequestException('Login already exist!');
+    if (!user && action === 'login')
+      throw new ForbiddenException('Wrong login/password');
     return user;
   }
 }
