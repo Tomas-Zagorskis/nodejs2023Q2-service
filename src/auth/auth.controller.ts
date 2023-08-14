@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   Post,
-  Req,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -12,9 +11,9 @@ import {
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthService } from './auth.service';
+import { RefreshAuthDto } from './dto/refresh-auth.dto';
 import { SkipAuth } from './skipAuth.decorator';
 
 @Controller('auth')
@@ -39,13 +38,12 @@ export class AuthController {
     return await this.authService.login(createAuthDto);
   }
 
-  @SkipAuth()
   @Post('/refresh')
   @HttpCode(200)
   @ApiCreatedResponse({ description: 'Authorized' })
   @ApiUnauthorizedResponse({ description: 'Missing token' })
   @ApiForbiddenResponse({ description: 'Token expired' })
-  async refresh(@Req() req: Request) {
-    return await this.authService.refresh(req['user']);
+  async refresh(@Body(new ValidationPipe()) refreshAuthDto: RefreshAuthDto) {
+    return await this.authService.refresh(refreshAuthDto);
   }
 }
