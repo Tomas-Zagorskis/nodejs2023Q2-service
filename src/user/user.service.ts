@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -8,6 +9,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
 import { comparePass, createHashPass } from './helpers/password';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -16,6 +18,22 @@ export class UserService {
     private readonly usersRepository: Repository<User>,
     private readonly entityManager: EntityManager,
   ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    await this.checkLogin(createUserDto.login, 'create');
+    const hashPass = await createHashPass(createUserDto.password);
+
+    const newUser = new User({
+      login: createUserDto.login.toLowerCase(),
+      password: hashPass,
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
+    });
+
+    const savedUser = await this.entityManager.save(newUser);
+
+    return savedUser.toResponse();
+  }
 
   async findAll() {
     const users = await this.usersRepository.find();
@@ -58,6 +76,17 @@ export class UserService {
   private async checkAndGetUser(id: string) {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async checkLogin(login: string, action: 'create' | 'login') {
+    const user = await this.entityManager.findOneBy(User, {
+      login: login.toLowerCase(),
+    });
+    if (user && action === 'create')
+      throw new BadRequestException('Login already exist!');
+    if (!user && action === 'login')
+      throw new ForbiddenException('Wrong login/password');
     return user;
   }
 }

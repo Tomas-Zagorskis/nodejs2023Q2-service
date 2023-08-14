@@ -11,7 +11,7 @@ import {
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { RefreshAuthDto } from './dto/refresh-auth.dto';
 
@@ -22,7 +22,7 @@ export class AuthController {
   @Post('/signup')
   @ApiCreatedResponse({ description: 'User created successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  async signup(@Body(new ValidationPipe()) createAuthDto: CreateAuthDto) {
+  async signup(@Body(new ValidationPipe()) createAuthDto: CreateUserDto) {
     return await this.authService.create(createAuthDto);
   }
 
@@ -31,7 +31,7 @@ export class AuthController {
   @ApiCreatedResponse({ description: 'Successfully logged in' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiForbiddenResponse({ description: 'Wrong login/password' })
-  async login(@Body(new ValidationPipe()) createAuthDto: CreateAuthDto) {
+  async login(@Body(new ValidationPipe()) createAuthDto: CreateUserDto) {
     return await this.authService.login(createAuthDto);
   }
 
