@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { comparePass } from 'src/user/helpers/password';
+import { comparePass } from 'src/utility/utils';
 import { UserService } from 'src/user/user.service';
 import { EntityManager } from 'typeorm';
 import { RefreshAuthDto } from './dto/refresh-auth.dto';

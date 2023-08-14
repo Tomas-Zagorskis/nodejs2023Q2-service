@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './entities/user.entity';
-import { comparePass, createHashPass } from './helpers/password';
+import { comparePass, createHashPass } from '../utility/utils';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
