@@ -1,9 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { comparePass } from 'src/utility/utils';
+import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { comparePass } from 'src/utility/utils';
 import { EntityManager } from 'typeorm';
 import { RefreshAuthDto } from './dto/refresh-auth.dto';
 
@@ -28,29 +33,74 @@ export class AuthService {
 
     const result = await comparePass(createUserDto.password, user.password);
 
-    if (!result) {
-      throw new ForbiddenException('Wrong login/password');
+    if (!result) throw new ForbiddenException('Wrong login/password');
+
+    return await this.getJwtResponse(user);
+  }
+
+  async refresh(refreshAuthDto: RefreshAuthDto) {
+    if (!refreshAuthDto.refreshToken) throw new UnauthorizedException();
+
+    let payload: { userId: string; login: string };
+
+    try {
+      payload = await this.jwtService.verifyAsync(refreshAuthDto.refreshToken, {
+        secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
+      });
+    } catch {
+      throw new ForbiddenException();
     }
-    const payload = { userId: user.id, login: user.login };
 
-    const token = await this.jwtService.signAsync(payload);
-
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
-      expiresIn: this.configService.get<string>('TOKEN_REFRESH_EXPIRE_TIME'),
+    const user = await this.entityManager.findOneBy(User, {
+      id: payload.userId,
     });
 
-    const decodeToken = this.jwtService.decode(token);
+    if (!user) throw new ForbiddenException();
+
+    return await this.getJwtResponse(user);
+  }
+
+  private async getJwtResponse(user: User) {
+    const { accessToken, refreshToken } = await this.getTokens(
+      user.id,
+      user.login,
+    );
+
+    const decodeToken = this.jwtService.decode(accessToken);
     const timeInSec = new Date().getTime() / 1000;
     const expIn = +(decodeToken['exp'] - timeInSec).toFixed(0);
-
+    await this.entityManager.update(User, { id: user.id }, { refreshToken });
     return {
-      accessToken: token,
+      accessToken,
       expiresIn: expIn,
       tokenType: 'Bearer',
       refreshToken,
     };
   }
 
-  async refresh(refreshUserDto: RefreshAuthDto) {}
+  async getTokens(userId: string, login: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync({
+        userId: userId,
+        login,
+      }),
+      this.jwtService.signAsync(
+        {
+          userId: userId,
+          login,
+        },
+        {
+          secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
+          expiresIn: this.configService.get<string>(
+            'TOKEN_REFRESH_EXPIRE_TIME',
+          ),
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 }
