@@ -12,13 +12,16 @@ export class User {
   password!: string;
 
   @Column({ default: 1 })
-  version?: number;
+  version: number;
 
   @Column('bigint')
-  createdAt?: number;
+  createdAt: number;
 
   @Column('bigint')
-  updatedAt?: number;
+  updatedAt: number;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 
   constructor(user: Partial<User>) {
     Object.assign(this, user);
